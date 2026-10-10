@@ -28,13 +28,14 @@ import org.tron.common.parameter.CommonParameter;
 import org.tron.core.Constant;
 import org.tron.core.services.filter.BufferedResponseWrapper;
 import org.tron.core.services.filter.CachedBodyRequestWrapper;
-import org.tron.core.services.http.RateLimiterServlet;
+import org.tron.core.services.http.servlets.RateLimiterServlet;
 
 @Component
 @Slf4j(topic = "API")
 public class JsonRpcServlet extends RateLimiterServlet {
 
   private static final ObjectMapper MAPPER = buildMapper();
+  private static final ObjectMapper OUTBOUND_MAPPER = new ObjectMapper();
 
   private static ObjectMapper buildMapper() {
     JsonFactory factory = JsonFactory.builder()
@@ -241,7 +242,7 @@ public class JsonRpcServlet extends RateLimiterServlet {
 
       JsonNode responseNode;
       try {
-        responseNode = MAPPER.readTree(responseBytes);
+        responseNode = OUTBOUND_MAPPER.readTree(responseBytes);
       } catch (IOException e) {
         writeJsonRpcError(resp, JsonRpcError.INTERNAL_ERROR, "Internal error", null, true);
         return;

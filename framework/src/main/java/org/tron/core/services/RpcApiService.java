@@ -63,13 +63,10 @@ import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionIdList;
 import org.tron.api.GrpcAPI.TransactionInfoList;
-import org.tron.api.GrpcAPI.TransactionList;
-import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.ViewingKeyMessage;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.api.MonitorGrpc;
-import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc.WalletImplBase;
 import org.tron.api.WalletSolidityGrpc.WalletSolidityImplBase;
 import org.tron.common.application.RpcService;
@@ -95,7 +92,7 @@ import org.tron.core.exception.StoreException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ZksnarkException;
 import org.tron.core.metrics.MetricsApiService;
-import org.tron.core.services.http.Util;
+import org.tron.core.services.http.servlets.Util;
 import org.tron.core.utils.TransactionUtil;
 import org.tron.core.zen.address.DiversifierT;
 import org.tron.core.zen.address.IncomingViewingKey;
@@ -199,9 +196,6 @@ public class RpcApiService extends RpcService {
     CommonParameter parameter = Args.getInstance();
     if (parameter.isSolidityNode()) {
       serverBuilder.addService(walletSolidityApi);
-      if (parameter.isWalletExtensionApi()) {
-        serverBuilder.addService(new WalletExtensionApi());
-      }
     } else {
       serverBuilder.addService(walletApi);
     }
@@ -932,23 +926,6 @@ public class RpcApiService extends RpcService {
         responseObserver.onError(getRunTimeException(e));
       }
       responseObserver.onCompleted();
-    }
-  }
-
-  /**
-   * WalletExtensionApi.
-   */
-  public class WalletExtensionApi extends WalletExtensionGrpc.WalletExtensionImplBase {
-
-    private TransactionListExtention transactionList2Extention(TransactionList transactionList) {
-      if (transactionList == null) {
-        return null;
-      }
-      TransactionListExtention.Builder builder = TransactionListExtention.newBuilder();
-      for (Transaction transaction : transactionList.getTransactionList()) {
-        builder.addTransaction(transaction2Extention(transaction));
-      }
-      return builder.build();
     }
   }
 
